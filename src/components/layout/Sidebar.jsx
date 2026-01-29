@@ -17,9 +17,11 @@ const Sidebar = () => {
     const { logout, recentApps, windows, restoreWindow, activeWindowId } = useOS();
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
+    const hasActiveWindow = windows.some(win => !win.isMinimized);
+
     return (
         <>
-            <div className="fixed bottom-0 left-0 w-full h-16 md:top-0 md:right-0 md:bottom-auto md:left-auto md:w-20 md:h-full bg-black/60 backdrop-blur-xl border-t md:border-t-0 md:border-l border-white/10 flex flex-row md:flex-col items-center justify-between md:justify-start py-2 md:py-6 px-4 md:px-0 z-50">
+            <div className={`fixed bottom-0 left-0 w-full h-16 md:top-0 md:right-0 md:bottom-auto md:left-auto md:w-20 md:h-full bg-black/60 backdrop-blur-xl border-t md:border-t-0 md:border-l border-white/10 flex flex-row md:flex-col items-center justify-between md:justify-start py-2 md:py-6 px-4 md:px-0 z-50 transition-transform duration-500 ease-in-out ${hasActiveWindow ? 'translate-y-full md:translate-y-0 opacity-0 md:opacity-100' : 'translate-y-0 opacity-100'}`}>
 
                 {/* Clock Section */}
                 <SidebarClock onClick={() => setIsCalendarOpen(!isCalendarOpen)} />
