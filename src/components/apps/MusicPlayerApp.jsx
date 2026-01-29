@@ -10,6 +10,7 @@ const MusicPlayerApp = () => {
     const [duration, setDuration] = useState(0);
     const [volume, setVolume] = useState(0.7);
     const [isDragging, setIsDragging] = useState(false);
+    const prevVolume = useRef(0.7);
 
     // Rotation Tracking for Seeking
     const lastAngle = useRef(0);
@@ -111,7 +112,18 @@ const MusicPlayerApp = () => {
     };
 
     const handleVolumeChange = (e) => {
-        setVolume(Number(e.target.value));
+        const newVolume = Number(e.target.value);
+        setVolume(newVolume);
+        if (newVolume > 0) prevVolume.current = newVolume;
+    };
+
+    const toggleMute = () => {
+        if (volume > 0) {
+            prevVolume.current = volume;
+            setVolume(0);
+        } else {
+            setVolume(prevVolume.current || 0.7);
+        }
     };
 
     const formatTime = (time) => {
@@ -231,17 +243,27 @@ const MusicPlayerApp = () => {
             </div>
 
             {/* Volume Control - Functional */}
-            <div className="mt-10 flex items-center gap-4 text-white/40 hover:text-white/80 transition-colors z-10 w-40">
-                {volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
-                <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    value={volume}
-                    onChange={handleVolumeChange}
-                    className="flex-1 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white/50 hover:accent-white/80 transition-all"
-                />
+            <div className="mt-10 flex items-center gap-4 group/vol z-10 w-48">
+                <button
+                    onClick={toggleMute}
+                    className="text-white/40 hover:text-white transition-colors p-1"
+                >
+                    {volume === 0 ? <VolumeX size={18} className="text-red-500" /> : <Volume2 size={18} />}
+                </button>
+                <div className="flex-1 relative h-6 flex items-center">
+                    <input
+                        type="range"
+                        min="0"
+                        max="1"
+                        step="0.01"
+                        value={volume}
+                        onChange={handleVolumeChange}
+                        className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all"
+                    />
+                </div>
+                <span className="text-[10px] font-mono text-white/40 w-8 tabular-nums">
+                    {Math.round(volume * 100)}%
+                </span>
             </div>
         </div>
     );

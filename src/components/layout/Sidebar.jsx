@@ -53,12 +53,16 @@ const Sidebar = () => {
 
             {/* Calendar Popover */}
             {isCalendarOpen && (
-                <div
-                    className="fixed z-[60] bottom-20 right-4 md:bottom-auto md:top-6 md:right-24"
-                    onClick={() => setIsCalendarOpen(false)}
-                >
-                    <Calendar />
-                </div>
+                <>
+                    {/* Backdrop to close when clicking outside */}
+                    <div
+                        className="fixed inset-0 z-50 bg-black/5"
+                        onClick={() => setIsCalendarOpen(false)}
+                    />
+                    <div className="fixed z-[60] bottom-20 right-4 md:bottom-auto md:top-6 md:right-24">
+                        <Calendar onClose={() => setIsCalendarOpen(false)} />
+                    </div>
+                </>
             )}
         </>
     );
