@@ -213,7 +213,11 @@ const LoginScreen = () => {
                     <div
                         ref={containerRef}
                         onPointerDown={onPointerDown}
-                        className="relative w-48 h-48 md:w-56 md:h-56 rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center p-1.5 bg-zinc-900 border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden"
+                        onClick={() => {
+                            setActiveImgIndex((prev) => (prev + 1) % images.length);
+                            lastImgUpdateRotation.current = rotation.get();
+                        }}
+                        className="relative w-48 h-48 md:w-56 md:h-56 rounded-full cursor-pointer active:cursor-grabbing flex items-center justify-center p-1.5 bg-zinc-900 border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden"
                     >
                         {images.map((img, idx) => (
                             <motion.img
@@ -228,7 +232,7 @@ const LoginScreen = () => {
                                 transition={{ duration: 0.8, ease: "easeInOut" }}
                             />
                         ))}
-                        <div className="absolute inset-0 rounded-full shadow-[inset_0_0_40px_rgba(0,0,0,0.7)] pointer-events-none border border-white/5" />
+                        <div className="absolute inset-0 rounded-full pointer-events-none border border-white/15" />
                     </div>
 
                     {/* Glow effect */}

@@ -23,4 +23,8 @@ export const APPS = {
         id: 'knowsrijan',
         title: 'Know Srijan?',
     },
+    CALENDAR: {
+        id: 'calendar',
+        title: 'Calendar',
+    },
 };

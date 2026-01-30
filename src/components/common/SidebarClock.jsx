@@ -29,26 +29,26 @@ const SidebarClock = ({ onClick }) => {
     return (
         <button
             onClick={onClick}
-            className="relative flex flex-col items-center justify-center py-3 px-4 md:px-2 md:mb-6 rounded-2xl border border-white/5 bg-white/5 backdrop-blur-md shadow-sm overflow-hidden"
+            className="relative flex flex-col items-center justify-center py-3 px-4 md:px-2 md:mb-8 transition-opacity hover:opacity-100 group outline-none"
         >
             <motion.span
                 initial={{ opacity: 0, y: 5 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-[10px] md:text-[9px] font-bold text-blue-400 tracking-[0.2em] uppercase mb-1"
+                className="text-[10px] md:text-[10px] font-black text-zinc-500 tracking-[0.3em] uppercase mb-2"
             >
                 {weekday}
             </motion.span>
 
             <div className="flex flex-col items-center">
-                <span className="text-sm md:text-base font-bold text-white tracking-tight font-mono">
+                <span className="text-base md:text-lg font-bold text-white tracking-widest font-mono">
                     {formatTime(currentTime).split(' ')[0]}
-                    <span className="text-[10px] ml-1 opacity-60 font-sans uppercase">
+                    <span className="text-[10px] ml-1.5 opacity-40 font-bold uppercase tracking-widest">
                         {formatTime(currentTime).split(' ')[1]}
                     </span>
                 </span>
             </div>
 
-            <span className="hidden md:block text-[9px] text-white/40 font-medium mt-1 tracking-wider">
+            <span className="hidden md:block text-[9px] text-white/20 font-black mt-2 tracking-[0.2em]">
                 {formatDate(currentTime)}
             </span>
         </button>

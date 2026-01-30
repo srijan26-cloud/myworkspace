@@ -14,17 +14,25 @@ const AppIcon = ({ appId }) => {
 };
 
 const Sidebar = () => {
-    const { logout, recentApps, windows, restoreWindow, activeWindowId } = useOS();
+    const { logout, recentApps, windows, restoreWindow, activeWindowId, openApp } = useOS();
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
+    const handleClockClick = () => {
+        if (window.innerWidth < 768) {
+            openApp(APPS.CALENDAR.id, APPS.CALENDAR.title);
+        } else {
+            setIsCalendarOpen(!isCalendarOpen);
+        }
+    };
 
     const hasActiveWindow = windows.some(win => !win.isMinimized);
 
     return (
         <>
-            <div className={`fixed bottom-0 left-0 w-full h-16 md:top-0 md:right-0 md:bottom-auto md:left-auto md:w-20 md:h-full bg-black/60 backdrop-blur-xl border-t md:border-t-0 md:border-l border-white/10 flex flex-row md:flex-col items-center justify-between md:justify-start py-2 md:py-6 px-4 md:px-0 z-50 transition-transform duration-500 ease-in-out ${hasActiveWindow ? 'translate-y-full md:translate-y-0 opacity-0 md:opacity-100' : 'translate-y-0 opacity-100'}`}>
+            <div className={`fixed bottom-0 left-0 w-full h-20 md:top-0 md:right-0 md:bottom-auto md:left-auto md:w-24 md:h-full bg-zinc-950/40 backdrop-blur-2xl border-t md:border-t-0 md:border-l border-white/10 flex flex-row md:flex-col items-center justify-between md:justify-start py-4 md:py-8 px-6 md:px-0 z-50 transition-transform duration-500 ease-in-out ${hasActiveWindow ? 'translate-y-full md:translate-y-0 opacity-0 md:opacity-100' : 'translate-y-0 opacity-100'}`}>
 
                 {/* Clock Section */}
-                <SidebarClock onClick={() => setIsCalendarOpen(!isCalendarOpen)} />
+                <SidebarClock onClick={handleClockClick} />
 
                 {/* Minimized/Active Apps Section */}
                 <div className="flex flex-row md:flex-col gap-4 items-center overflow-x-auto md:overflow-visible">
