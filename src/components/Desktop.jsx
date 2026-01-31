@@ -7,28 +7,14 @@ import ResumeApp from './apps/ResumeApp';
 import MusicPlayerApp from './apps/MusicPlayerApp';
 import CodingBackground from './common/CodingBackground';
 import { APPS } from '../constants/apps';
-import { FileText, Music, Globe, MapPin, Braces, User, Calendar as CalendarIcon, Battery, Wifi, Signal } from 'lucide-react';
+import { FileText, Music, Globe, MapPin, Braces, Mail, User, Calendar as CalendarIcon, Terminal, Battery, Wifi, Signal } from 'lucide-react';
 import BrowserApp from './apps/BrowserApp';
 import LocateApp from './apps/LocateApp';
 import SCCodeApp from './apps/SCCodeApp';
-import KnowSrijanApp from './apps/KnowSrijanApp';
+import ContactApp from './apps/ContactApp';
+import AboutMeApp from './apps/AboutMeApp';
 import CalendarApp from './apps/CalendarApp';
-
-const StatusBar = () => (
-    <div className="fixed top-0 left-0 right-0 h-12 z-[100] px-6 flex items-center justify-center pointer-events-none">
-        {/* Center: Dynamic Island */}
-        <motion.div
-            initial={{ width: 120, height: 26 }}
-            whileHover={{ width: 220, height: 34 }}
-            className="flex bg-black/80 backdrop-blur-3xl border border-white/10 rounded-full items-center justify-center shadow-[0_0_30px_rgba(0,0,0,0.5)] overflow-hidden pointer-events-auto cursor-pointer"
-        >
-            <div className="flex items-center gap-2 px-6 transition-all duration-300">
-                <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
-                <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.3em]">System Active</span>
-            </div>
-        </motion.div>
-    </div>
-);
+import TerminalApp from './apps/TerminalApp';
 
 const DesktopIcon = ({ title, icon: Icon, onClick, colorClass = "from-zinc-800 to-black" }) => (
     <button
@@ -52,8 +38,10 @@ const COMPONENT_MAP = {
     [APPS.BROWSER.id]: BrowserApp,
     [APPS.LOCATE.id]: LocateApp,
     [APPS.SC_CODE.id]: SCCodeApp,
-    [APPS.KNOW_SRIJAN.id]: KnowSrijanApp,
+    [APPS.CONTACT.id]: ContactApp,
+    [APPS.ABOUT_ME.id]: AboutMeApp,
     [APPS.CALENDAR.id]: CalendarApp,
+    [APPS.TERMINAL.id]: TerminalApp,
 };
 
 const Desktop = () => {
@@ -62,7 +50,6 @@ const Desktop = () => {
 
     return (
         <div className="fixed inset-0 w-full h-full bg-black overflow-hidden font-sans">
-            <StatusBar />
             {/* Wallpaper Layer */}
             <CodingBackground />
 
@@ -99,16 +86,28 @@ const Desktop = () => {
                     onClick={() => openApp(APPS.SC_CODE.id, APPS.SC_CODE.title)}
                 />
                 <DesktopIcon
-                    title={APPS.KNOW_SRIJAN.title}
-                    icon={User}
+                    title={APPS.CONTACT.title}
+                    icon={Mail}
                     colorClass="from-indigo-600/80 to-purple-900/90"
-                    onClick={() => openApp(APPS.KNOW_SRIJAN.id, APPS.KNOW_SRIJAN.title)}
+                    onClick={() => openApp(APPS.CONTACT.id, APPS.CONTACT.title)}
+                />
+                <DesktopIcon
+                    title={APPS.ABOUT_ME.title}
+                    icon={User}
+                    colorClass="from-emerald-600/80 to-teal-900/90"
+                    onClick={() => openApp(APPS.ABOUT_ME.id, APPS.ABOUT_ME.title)}
                 />
                 <DesktopIcon
                     title={APPS.CALENDAR.title}
                     icon={CalendarIcon}
                     colorClass="from-rose-500/80 to-red-900/90"
                     onClick={() => openApp(APPS.CALENDAR.id, APPS.CALENDAR.title)}
+                />
+                <DesktopIcon
+                    title={APPS.TERMINAL.title}
+                    icon={Terminal}
+                    colorClass="from-gray-700/80 to-black/90"
+                    onClick={() => openApp(APPS.TERMINAL.id, APPS.TERMINAL.title)}
                 />
             </div>
 

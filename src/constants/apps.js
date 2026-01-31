@@ -13,18 +13,26 @@ export const APPS = {
     },
     LOCATE: {
         id: 'locate',
-        title: 'Locate Srijan',
+        title: 'Locate Me',
     },
     SC_CODE: {
         id: 'sccode',
         title: 'SCCode',
     },
-    KNOW_SRIJAN: {
-        id: 'knowsrijan',
-        title: 'Know Srijan?',
+    CONTACT: {
+        id: 'contact',
+        title: 'Contact Me',
+    },
+    ABOUT_ME: {
+        id: 'aboutme',
+        title: 'About Me',
     },
     CALENDAR: {
         id: 'calendar',
         title: 'Calendar',
+    },
+    TERMINAL: {
+        id: 'terminal',
+        title: 'Terminal',
     },
 };

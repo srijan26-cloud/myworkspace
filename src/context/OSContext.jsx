@@ -12,19 +12,12 @@ export const OSProvider = ({ children }) => {
     const [zIndexCounter, setZIndexCounter] = useState(10);
     const [isMusicPlaying, setIsMusicPlaying] = useState(false);
 
-    const playSound = () => {
-        const audio = new Audio('/music1.wav');
-        audio.play().catch(e => console.error("Sound play failed:", e));
-    };
-
     // Login/Logout
     const login = () => {
-        playSound();
         setIsLoggedIn(true);
     };
 
     const logout = () => {
-        playSound();
         setIsMusicPlaying(false);
         setIsLoggedIn(false);
         setWindows([]);
