@@ -54,7 +54,7 @@ const Desktop = () => {
             <CodingBackground />
 
             {/* Desktop Icons */}
-            <div className="relative z-10 w-full h-full p-6 pt-12 pb-24 md:pb-6 md:pr-24 flex flex-wrap content-start gap-4 md:gap-8 capitalize">
+            <div className="relative z-10 w-full h-full p-6 pt-12 pb-24 md:pb-6 md:pr-24 flex flex-wrap content-start justify-center md:justify-start gap-4 md:gap-8 capitalize">
                 <DesktopIcon
                     title={APPS.RESUME.title}
                     icon={FileText}

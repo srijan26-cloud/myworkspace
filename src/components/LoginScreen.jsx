@@ -248,11 +248,9 @@ const LoginScreen = () => {
                 <div className="flex flex-col items-center gap-8">
                     <div className="flex flex-col items-center gap-2">
                         <h1 className="text-3xl font-extralight text-white tracking-[0.4em] uppercase">
-                            Srijan
+                            Srijan Chanda
                         </h1>
-                        <p className="text-[10px] text-zinc-500 uppercase tracking-[0.3em] font-medium">
-                            Authorized Access Only
-                        </p>
+
                     </div>
 
                     <motion.button
