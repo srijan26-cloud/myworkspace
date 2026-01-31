@@ -247,8 +247,8 @@ const LoginScreen = () => {
 
                 <div className="flex flex-col items-center gap-8">
                     <div className="flex flex-col items-center gap-2">
-                        <h1 className="text-3xl font-extralight text-white tracking-[0.4em] uppercase">
-                            Srijan Chanda
+                        <h1 className="text-2xl font-extralight text-white tracking-[0.4em] uppercase">
+                            Srijan Chandra
                         </h1>
 
                     </div>
