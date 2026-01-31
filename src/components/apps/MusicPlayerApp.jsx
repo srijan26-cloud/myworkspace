@@ -1,56 +1,154 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Play, Pause, SkipForward, SkipBack, Music2, Volume2, VolumeX } from 'lucide-react';
 import { useOS } from '../../context/OSContext';
+import { MUSIC_PLAYLIST } from '../../constants/musicPlaylist';
 
 const MusicPlayerApp = () => {
     const { isMusicPlaying, setIsMusicPlaying } = useOS();
-    const audioRef = useRef(null);
+    const playerRef = useRef(null);
     const containerRef = useRef(null);
+    const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
-    const [volume, setVolume] = useState(0.7);
+    const [volume, setVolume] = useState(70);
+    const [isPlayerReady, setIsPlayerReady] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
-    const prevVolume = useRef(0.7);
+    const prevVolume = useRef(70);
+    const timeUpdateInterval = useRef(null);
 
     // Rotation Tracking for Seeking
     const lastAngle = useRef(0);
 
-    // Synchronize audio volume with state
+    // Load YouTube IFrame API
     useEffect(() => {
-        if (audioRef.current) {
-            audioRef.current.volume = volume;
+        // Check if API is already loaded
+        if (window.YT && window.YT.Player) {
+            initializePlayer();
+            return;
         }
-    }, [volume]);
 
-    // Synchronize audio playback with global state
-    useEffect(() => {
-        if (audioRef.current) {
-            if (isMusicPlaying) {
-                audioRef.current.play().catch(e => console.error("Audio playback failed:", e));
-            } else {
-                audioRef.current.pause();
+        // Load the API
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        // API ready callback
+        window.onYouTubeIframeAPIReady = () => {
+            initializePlayer();
+        };
+
+        return () => {
+            if (timeUpdateInterval.current) {
+                clearInterval(timeUpdateInterval.current);
             }
+        };
+    }, []);
+
+    const initializePlayer = () => {
+        if (playerRef.current) return;
+
+        playerRef.current = new window.YT.Player('youtube-player', {
+            height: '0',
+            width: '0',
+            videoId: MUSIC_PLAYLIST[0].id,
+            playerVars: {
+                autoplay: 0,
+                controls: 0,
+                disablekb: 1,
+                fs: 0,
+                modestbranding: 1,
+                playsinline: 1,
+            },
+            events: {
+                onReady: onPlayerReady,
+                onStateChange: onPlayerStateChange,
+            },
+        });
+    };
+
+    const onPlayerReady = (event) => {
+        setIsPlayerReady(true);
+        event.target.setVolume(volume);
+        setDuration(event.target.getDuration());
+
+        // Start time update interval
+        timeUpdateInterval.current = setInterval(() => {
+            if (playerRef.current && playerRef.current.getCurrentTime) {
+                setCurrentTime(playerRef.current.getCurrentTime());
+                const dur = playerRef.current.getDuration();
+                if (dur && dur !== duration) {
+                    setDuration(dur);
+                }
+            }
+        }, 100);
+    };
+
+    const onPlayerStateChange = (event) => {
+        // YT.PlayerState.ENDED = 0
+        if (event.data === 0) {
+            // Track ended, play next
+            playNextTrack();
+        } else if (event.data === 1) {
+            // Playing
+            setIsMusicPlaying(true);
+        } else if (event.data === 2) {
+            // Paused
+            setIsMusicPlaying(false);
         }
-    }, [isMusicPlaying]);
+    };
+
+    // Sync player with global state
+    useEffect(() => {
+        if (!isPlayerReady || !playerRef.current) return;
+
+        if (isMusicPlaying) {
+            playerRef.current.playVideo();
+        } else {
+            playerRef.current.pauseVideo();
+        }
+    }, [isMusicPlaying, isPlayerReady]);
+
+    // Update volume when changed
+    useEffect(() => {
+        if (isPlayerReady && playerRef.current) {
+            playerRef.current.setVolume(volume);
+        }
+    }, [volume, isPlayerReady]);
 
     const togglePlay = () => {
         setIsMusicPlaying(!isMusicPlaying);
     };
 
-    const skipForward = () => {
-        if (audioRef.current) {
-            audioRef.current.currentTime = Math.min(audioRef.current.currentTime + 10, duration);
-        }
+    const playNextTrack = () => {
+        const nextIndex = (currentTrackIndex + 1) % MUSIC_PLAYLIST.length;
+        changeTrack(nextIndex);
     };
 
-    const skipBackward = () => {
-        if (audioRef.current) {
-            audioRef.current.currentTime = Math.max(audioRef.current.currentTime - 10, 0);
+    const playPreviousTrack = () => {
+        const prevIndex = currentTrackIndex === 0
+            ? MUSIC_PLAYLIST.length - 1
+            : currentTrackIndex - 1;
+        changeTrack(prevIndex);
+    };
+
+    const changeTrack = (newIndex) => {
+        if (!isPlayerReady || !playerRef.current) return;
+
+        setCurrentTrackIndex(newIndex);
+        setCurrentTime(0);
+        playerRef.current.loadVideoById(MUSIC_PLAYLIST[newIndex].id);
+
+        // If music was playing, continue playing
+        if (isMusicPlaying) {
+            setTimeout(() => {
+                playerRef.current.playVideo();
+            }, 100);
         }
     };
 
     const handleInteraction = (clientX, clientY) => {
-        if (!containerRef.current || !audioRef.current) return;
+        if (!containerRef.current || !playerRef.current || !isPlayerReady) return;
 
         const rect = containerRef.current.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
@@ -63,9 +161,10 @@ const MusicPlayerApp = () => {
         if (delta > 180) delta -= 360;
         if (delta < -180) delta += 360;
 
-        // One full rotation (360 deg) = 30 seconds of seeking (adjustable)
+        // One full rotation (360 deg) = 30 seconds of seeking
         const seekDelta = (delta / 360) * 30;
-        audioRef.current.currentTime = Math.max(0, Math.min(audioRef.current.currentTime + seekDelta, duration));
+        const newTime = Math.max(0, Math.min(currentTime + seekDelta, duration));
+        playerRef.current.seekTo(newTime, true);
 
         lastAngle.current = currentAngle;
     };
@@ -91,22 +190,10 @@ const MusicPlayerApp = () => {
         setIsDragging(false);
     };
 
-    const updateTime = () => {
-        if (audioRef.current) {
-            setCurrentTime(audioRef.current.currentTime);
-        }
-    };
-
-    const onLoadedMetadata = () => {
-        if (audioRef.current) {
-            setDuration(audioRef.current.duration);
-        }
-    };
-
     const handleProgressChange = (e) => {
         const time = Number(e.target.value);
-        if (audioRef.current) {
-            audioRef.current.currentTime = time;
+        if (playerRef.current && isPlayerReady) {
+            playerRef.current.seekTo(time, true);
             setCurrentTime(time);
         }
     };
@@ -122,7 +209,7 @@ const MusicPlayerApp = () => {
             prevVolume.current = volume;
             setVolume(0);
         } else {
-            setVolume(prevVolume.current || 0.7);
+            setVolume(prevVolume.current || 70);
         }
     };
 
@@ -132,6 +219,8 @@ const MusicPlayerApp = () => {
         const sec = Math.floor(time % 60);
         return `${min}:${sec < 10 ? '0' : ''}${sec}`;
     };
+
+    const currentTrack = MUSIC_PLAYLIST[currentTrackIndex];
 
     return (
         <div
@@ -143,14 +232,8 @@ const MusicPlayerApp = () => {
             {/* Background Decorative Element */}
             <div className="absolute top-[-20%] left-[-20%] w-[140%] h-[140%] bg-gradient-to-tr from-indigo-500/10 via-purple-500/10 to-blue-500/10 animate-pulse pointer-events-none" />
 
-            <audio
-                ref={audioRef}
-                src="/music2.mp3"
-                onTimeUpdate={updateTime}
-                onLoadedMetadata={onLoadedMetadata}
-                onEnded={() => setIsMusicPlaying(false)}
-                preload="auto"
-            />
+            {/* Hidden YouTube Player */}
+            <div id="youtube-player" style={{ display: 'none' }}></div>
 
             {/* Vinyl Record Visual */}
             <div className="relative mb-8 z-10 scale-90 md:scale-100">
@@ -181,7 +264,7 @@ const MusicPlayerApp = () => {
                     </div>
                 </div>
 
-                {/* Play Indicator Needle (simplified) */}
+                {/* Play Indicator Needle */}
                 <div className={`
                     absolute top-[-10px] right-2 w-2 h-20 bg-gradient-to-b from-gray-400 to-gray-600 rounded-full origin-top transform 
                     ${isMusicPlaying ? 'rotate-[25deg]' : 'rotate-0'} 
@@ -193,8 +276,15 @@ const MusicPlayerApp = () => {
 
             {/* Song Info */}
             <div className="text-center mb-6 z-10">
-                <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-white/90 to-white/70">Srijan's Track - 02</h3>
-                <p className="text-blue-400 text-sm font-medium tracking-widest uppercase mt-1">Now Playing</p>
+                <h3 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-white/90 to-white/70">
+                    {currentTrack.title}
+                </h3>
+                <p className="text-blue-400 text-sm font-medium tracking-widest uppercase mt-1">
+                    {currentTrack.artist}
+                </p>
+                <p className="text-gray-500 text-xs mt-2">
+                    Track {currentTrackIndex + 1} of {MUSIC_PLAYLIST.length}
+                </p>
             </div>
 
             {/* Progress Bar Layer */}
@@ -217,8 +307,9 @@ const MusicPlayerApp = () => {
             {/* Controls Layer */}
             <div className="flex items-center justify-center gap-10 z-10">
                 <button
-                    onClick={skipBackward}
+                    onClick={playPreviousTrack}
                     className="text-white/40 hover:text-white hover:scale-110 transition-all duration-200"
+                    title="Previous Track"
                 >
                     <SkipBack size={24} />
                 </button>
@@ -235,14 +326,15 @@ const MusicPlayerApp = () => {
                 </button>
 
                 <button
-                    onClick={skipForward}
+                    onClick={playNextTrack}
                     className="text-white/40 hover:text-white hover:scale-110 transition-all duration-200"
+                    title="Next Track"
                 >
                     <SkipForward size={24} />
                 </button>
             </div>
 
-            {/* Volume Control - Functional */}
+            {/* Volume Control */}
             <div className="mt-10 flex items-center gap-4 group/vol z-10 w-48">
                 <button
                     onClick={toggleMute}
@@ -254,15 +346,15 @@ const MusicPlayerApp = () => {
                     <input
                         type="range"
                         min="0"
-                        max="1"
-                        step="0.01"
+                        max="100"
+                        step="1"
                         value={volume}
                         onChange={handleVolumeChange}
                         className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all"
                     />
                 </div>
                 <span className="text-[10px] font-mono text-white/40 w-8 tabular-nums">
-                    {Math.round(volume * 100)}%
+                    {Math.round(volume)}%
                 </span>
             </div>
         </div>
