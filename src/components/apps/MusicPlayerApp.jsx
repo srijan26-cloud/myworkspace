@@ -15,19 +15,44 @@ const MusicPlayerApp = () => {
     const [isDragging, setIsDragging] = useState(false);
     const prevVolume = useRef(70);
     const timeUpdateInterval = useRef(null);
+    const isApiLoaded = useRef(false);
 
     // Rotation Tracking for Seeking
     const lastAngle = useRef(0);
 
     // Load YouTube IFrame API
     useEffect(() => {
+        // Prevent duplicate API loads
+        if (isApiLoaded.current) {
+            if (window.YT && window.YT.Player) {
+                initializePlayer();
+            }
+            return;
+        }
+
         // Check if API is already loaded
         if (window.YT && window.YT.Player) {
+            isApiLoaded.current = true;
             initializePlayer();
             return;
         }
 
-        // Load the API
+        // Check if script is already being loaded
+        const existingScript = document.querySelector('script[src="https://www.youtube.com/iframe_api"]');
+        if (existingScript) {
+            isApiLoaded.current = true;
+            // Wait for API to be ready
+            const checkAPI = setInterval(() => {
+                if (window.YT && window.YT.Player) {
+                    clearInterval(checkAPI);
+                    initializePlayer();
+                }
+            }, 100);
+            return () => clearInterval(checkAPI);
+        }
+
+        // Load the API for the first time
+        isApiLoaded.current = true;
         const tag = document.createElement('script');
         tag.src = 'https://www.youtube.com/iframe_api';
         const firstScriptTag = document.getElementsByTagName('script')[0];
@@ -38,33 +63,48 @@ const MusicPlayerApp = () => {
             initializePlayer();
         };
 
+        // Cleanup on unmount
         return () => {
             if (timeUpdateInterval.current) {
                 clearInterval(timeUpdateInterval.current);
+                timeUpdateInterval.current = null;
+            }
+            if (playerRef.current && playerRef.current.destroy) {
+                playerRef.current.destroy();
+                playerRef.current = null;
             }
         };
     }, []);
 
     const initializePlayer = () => {
+        // Prevent duplicate player creation
         if (playerRef.current) return;
 
-        playerRef.current = new window.YT.Player('youtube-player', {
-            height: '0',
-            width: '0',
-            videoId: MUSIC_PLAYLIST[0].id,
-            playerVars: {
-                autoplay: 0,
-                controls: 0,
-                disablekb: 1,
-                fs: 0,
-                modestbranding: 1,
-                playsinline: 1,
-            },
-            events: {
-                onReady: onPlayerReady,
-                onStateChange: onPlayerStateChange,
-            },
-        });
+        // Check if player container exists
+        const playerContainer = document.getElementById('youtube-player');
+        if (!playerContainer) return;
+
+        try {
+            playerRef.current = new window.YT.Player('youtube-player', {
+                height: '0',
+                width: '0',
+                videoId: MUSIC_PLAYLIST[0].id,
+                playerVars: {
+                    autoplay: 0,
+                    controls: 0,
+                    disablekb: 1,
+                    fs: 0,
+                    modestbranding: 1,
+                    playsinline: 1,
+                },
+                events: {
+                    onReady: onPlayerReady,
+                    onStateChange: onPlayerStateChange,
+                },
+            });
+        } catch (error) {
+            console.error('Failed to initialize YouTube player:', error);
+        }
     };
 
     const onPlayerReady = (event) => {
@@ -72,13 +112,27 @@ const MusicPlayerApp = () => {
         event.target.setVolume(volume);
         setDuration(event.target.getDuration());
 
+        // Clear any existing interval before creating new one
+        if (timeUpdateInterval.current) {
+            clearInterval(timeUpdateInterval.current);
+            timeUpdateInterval.current = null;
+        }
+
         // Start time update interval
         timeUpdateInterval.current = setInterval(() => {
             if (playerRef.current && playerRef.current.getCurrentTime) {
-                setCurrentTime(playerRef.current.getCurrentTime());
-                const dur = playerRef.current.getDuration();
-                if (dur && dur !== duration) {
-                    setDuration(dur);
+                try {
+                    setCurrentTime(playerRef.current.getCurrentTime());
+                    const dur = playerRef.current.getDuration();
+                    if (dur && dur !== duration) {
+                        setDuration(dur);
+                    }
+                } catch (error) {
+                    // Player might be destroyed, clear interval
+                    if (timeUpdateInterval.current) {
+                        clearInterval(timeUpdateInterval.current);
+                        timeUpdateInterval.current = null;
+                    }
                 }
             }
         }, 100);
