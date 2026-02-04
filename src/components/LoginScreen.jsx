@@ -74,7 +74,7 @@ const LoginScreen = () => {
     const accumulatedRotation = useRef(0);
     const lastImgUpdateRotation = useRef(0);
 
-    const images = ['/img1.jpg', '/img2.png', '/img3.jpg'];
+    const images = ['/img1.jpg', '/img2.jpg', '/img3.png'];
 
     useEffect(() => {
         // Preload images
@@ -163,7 +163,7 @@ const LoginScreen = () => {
 
     return (
         <div
-            className="w-full h-screen bg-black flex flex-col items-center justify-center relative overflow-hidden select-none touch-none"
+            className="w-full h-[100dvh] bg-black flex flex-col items-center justify-center relative overflow-hidden select-none touch-none"
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
             onPointerLeave={onPointerUp}
@@ -268,9 +268,6 @@ const LoginScreen = () => {
                 </div>
             </motion.div>
 
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-[8px] text-zinc-700 uppercase tracking-[0.8em] font-black">
-                Terminal V2.4.0
-            </div>
         </div>
     );
 };
