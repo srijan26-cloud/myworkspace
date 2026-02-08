@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 const CertiApp = () => {
-    // Generate certificate data for PDFs
+    // Generate certificate data for JPGs
     const certificates = Array.from({ length: 9 }, (_, i) => ({
         id: i + 1,
-        src: `/certi_${i + 1}.pdf`,
+        src: `/certi_${i + 1}_page-0001.jpg`,
     }));
 
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -58,7 +58,7 @@ const CertiApp = () => {
             </div>
 
             {/* Gallery Container - Full Screen */}
-            <div className="flex-1 relative overflow-hidden bg-black">
+            <div className="flex-1 relative overflow-hidden bg-black flex items-center justify-center">
                 <AnimatePresence initial={false} custom={direction} mode="wait">
                     <motion.div
                         key={currentIndex}
@@ -86,18 +86,14 @@ const CertiApp = () => {
                         className="absolute inset-0 w-full h-full flex items-center justify-center"
                     >
                         {/* 
-                           Using iframe without extra params to avoid browser blocking.
-                           Removed extra styling/padding to ensure full visibility.
-                           Pointer events none on iframe to allow drag on overlay.
+                           Using img tag for simple rendering of JPGs.
+                           object-contain ensures the full certificate is visible without cropping.
                         */}
-                        <iframe
+                        <img
                             src={certificates[currentIndex].src}
-                            className="w-full h-full border-none bg-white"
-                            title={`Certificate ${currentIndex + 1}`}
+                            alt={`Certificate ${currentIndex + 1}`}
+                            className="w-full h-full object-contain pointer-events-none"
                         />
-
-                        {/* Transparent overlay to capture drag events */}
-                        <div className="absolute inset-0 bg-transparent z-10" />
                     </motion.div>
                 </AnimatePresence>
 
