@@ -85,11 +85,23 @@ const CertiApp = () => {
                         }}
                         className="absolute w-full max-w-5xl h-[80%] bg-black rounded-lg shadow-2xl overflow-hidden border border-white/10 flex items-center justify-center"
                     >
-                        <iframe
-                            src={`${certificates[currentIndex].src}#toolbar=0&navpanes=0&scrollbar=0`}
-                            className="w-full h-full border-none"
-                            title={`Certificate ${currentIndex + 1}`}
-                        />
+                        <object
+                            data={certificates[currentIndex].src}
+                            type="application/pdf"
+                            className="w-full h-full rounded-lg"
+                        >
+                            <div className="w-full h-full flex flex-col items-center justify-center text-white bg-zinc-900">
+                                <p className="mb-4 text-zinc-400">Preview not available</p>
+                                <a
+                                    href={certificates[currentIndex].src}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-full text-sm font-medium transition-colors"
+                                >
+                                    Open PDF
+                                </a>
+                            </div>
+                        </object>
                         {/* Transparent overlay to capture drag events over the iframe */}
                         <div className="absolute inset-0 bg-transparent" />
                     </motion.div>
