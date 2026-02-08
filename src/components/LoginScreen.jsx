@@ -161,12 +161,18 @@ const LoginScreen = () => {
         lastImgUpdateRotation.current = rotation.get();
     };
 
+    const handleImageChange = () => {
+        setActiveImgIndex((prev) => (prev + 1) % images.length);
+        lastImgUpdateRotation.current = rotation.get();
+    };
+
     return (
         <div
-            className="w-full h-[100dvh] bg-black flex flex-col items-center justify-center relative overflow-hidden select-none touch-none"
+            className="w-full h-[100dvh] bg-black flex flex-col items-center justify-center relative overflow-hidden select-none touch-none cursor-pointer"
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
             onPointerLeave={onPointerUp}
+            onClick={handleImageChange}
         >
             <AnimatePresence>
                 {!isLoaded && <LoadingScreen key="loader" />}
@@ -213,9 +219,9 @@ const LoginScreen = () => {
                     <div
                         ref={containerRef}
                         onPointerDown={onPointerDown}
-                        onClick={() => {
-                            setActiveImgIndex((prev) => (prev + 1) % images.length);
-                            lastImgUpdateRotation.current = rotation.get();
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleImageChange();
                         }}
                         className="relative w-48 h-48 md:w-56 md:h-56 rounded-full cursor-pointer active:cursor-grabbing flex items-center justify-center p-1.5 bg-zinc-900 border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden"
                     >
@@ -256,7 +262,10 @@ const LoginScreen = () => {
                     <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={login}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            login();
+                        }}
                         className="flex items-center gap-3 px-10 py-3.5 bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur-xl rounded-full transition-all group overflow-hidden relative"
                     >
                         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />

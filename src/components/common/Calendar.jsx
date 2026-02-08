@@ -1,10 +1,93 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+
+const MonthYearSelector = ({ currentMonth, currentYear, onClose, onSelect }) => {
+    const [view, setView] = useState('year'); // 'year' or 'month'
+    const [selectedYear, setSelectedYear] = useState(currentYear);
+
+    const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    const generateYears = () => {
+        const years = [];
+        const startYear = selectedYear - 6;
+        for (let i = 0; i < 12; i++) {
+            years.push(startYear + i);
+        }
+        return years;
+    };
+
+    return (
+        <div className="absolute inset-0 bg-black/90 backdrop-blur-xl z-20 flex flex-col p-4 animate-in fade-in duration-200 rounded-2xl">
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-white text-lg font-bold">
+                    {view === 'year' ? 'Select Year' : `Select Month (${selectedYear})`}
+                </h3>
+                <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full text-white/60 hover:text-white transition-colors">
+                    <X size={18} />
+                </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+                {view === 'year' ? (
+                    <div className="grid grid-cols-3 gap-3">
+                        <button
+                            onClick={() => setSelectedYear(prev => prev - 12)}
+                            className="p-3 rounded-xl bg-white/5 hover:bg-white/10 text-blue-400 flex items-center justify-center"
+                        >
+                            <ChevronLeft />
+                        </button>
+                        {generateYears().map(y => (
+                            <button
+                                key={y}
+                                onClick={() => {
+                                    setSelectedYear(y);
+                                    setView('month');
+                                }}
+                                className={`p-3 rounded-xl text-sm font-bold transition-all ${y === currentYear ? 'bg-blue-600 text-white' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
+                            >
+                                {y}
+                            </button>
+                        ))}
+                        <button
+                            onClick={() => setSelectedYear(prev => prev + 12)}
+                            className="p-3 rounded-xl bg-white/5 hover:bg-white/10 text-blue-400 flex items-center justify-center"
+                        >
+                            <ChevronRight />
+                        </button>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-2 gap-3">
+                        {monthNames.map((m, idx) => (
+                            <button
+                                key={m}
+                                onClick={() => onSelect(idx, selectedYear)}
+                                className={`p-3 rounded-xl text-sm font-bold transition-all ${idx === currentMonth && selectedYear === currentYear ? 'bg-blue-600 text-white' : 'bg-white/5 hover:bg-white/10 text-gray-300'}`}
+                            >
+                                {m}
+                            </button>
+                        ))}
+                        <button
+                            onClick={() => setView('year')}
+                            className="col-span-2 p-3 mt-2 rounded-xl bg-white/5 hover:bg-white/10 text-blue-400 text-xs uppercase tracking-widest font-bold"
+                        >
+                            Back to Years
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
 
 const Calendar = ({ onClose, isApp = false }) => {
     const today = new Date();
     const [viewDate, setViewDate] = useState(today);
     const [showEvents, setShowEvents] = useState(false);
+    const [showMonthYearSelector, setShowMonthYearSelector] = useState(false);
 
     const year = viewDate.getFullYear();
     const month = viewDate.getMonth();
@@ -45,24 +128,41 @@ const Calendar = ({ onClose, isApp = false }) => {
     const nextYear = () => setViewDate(new Date(year + 1, month, 1));
     const prevYear = () => setViewDate(new Date(year - 1, month, 1));
 
+    const handleMonthYearSelect = (newMonth, newYear) => {
+        setViewDate(new Date(newYear, newMonth, 1));
+        setShowMonthYearSelector(false);
+    };
+
     return (
         <div
             className={`
-                bg-black/80 backdrop-blur-2xl border border-white/10 shadow-2xl transition-all duration-300
+                bg-black/80 backdrop-blur-2xl border border-white/10 shadow-2xl transition-all duration-300 relative overflow-hidden
                 ${isApp ? 'w-full h-full flex flex-col p-6' : 'rounded-2xl p-5 w-[320px] md:w-[380px]'}
             `}
             onClick={(e) => e.stopPropagation()}
         >
+            {showMonthYearSelector && (
+                <MonthYearSelector
+                    currentMonth={month}
+                    currentYear={year}
+                    onClose={() => setShowMonthYearSelector(false)}
+                    onSelect={handleMonthYearSelect}
+                />
+            )}
+
             <div className="flex items-center justify-between mb-8">
                 <div className="flex flex-col">
                     <div className="flex items-center gap-2">
                         <span className="text-white font-semibold text-xl md:text-2xl">{monthNames[month]}</span>
-                        <div className="flex items-center bg-white/5 rounded-lg px-2 py-1">
-                            <button onClick={prevYear} className="p-1 hover:text-blue-400 transition-colors">
+                        <div className="flex items-center bg-white/5 rounded-lg px-2 py-1 cursor-pointer hover:bg-white/10 transition-colors"
+                            onClick={() => setShowMonthYearSelector(true)}
+                            title="Select Month/Year"
+                        >
+                            <button onClick={(e) => { e.stopPropagation(); prevYear(); }} className="p-1 hover:text-blue-400 transition-colors">
                                 <ChevronLeft size={14} />
                             </button>
-                            <span className="text-blue-400 font-mono text-sm md:text-base px-2">{year}</span>
-                            <button onClick={nextYear} className="p-1 hover:text-blue-400 transition-colors">
+                            <span className="text-blue-400 font-mono text-sm md:text-base px-2 hover:underline decoration-blue-400 underline-offset-4">{year}</span>
+                            <button onClick={(e) => { e.stopPropagation(); nextYear(); }} className="p-1 hover:text-blue-400 transition-colors">
                                 <ChevronRight size={14} />
                             </button>
                         </div>
@@ -89,7 +189,7 @@ const Calendar = ({ onClose, isApp = false }) => {
                         ))}
                     </div>
 
-                    <div className="grid grid-cols-7 gap-1 md:gap-2 flex-1">
+                    <div className="grid grid-cols-7 gap-1 md:gap-2 flex-1 overflow-y-auto">
                         {days}
                     </div>
                 </>
@@ -129,3 +229,4 @@ const Calendar = ({ onClose, isApp = false }) => {
 };
 
 export default Calendar;
+

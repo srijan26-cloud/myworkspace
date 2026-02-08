@@ -7,8 +7,8 @@ import ResumeApp from './apps/ResumeApp';
 import MusicPlayerApp from './apps/MusicPlayerApp';
 import CodingBackground from './common/CodingBackground';
 import { APPS } from '../constants/apps';
-import { FileText, Music, Globe, MapPin, Braces, Mail, User, Calendar as CalendarIcon, Terminal, Battery, Wifi, Signal } from 'lucide-react';
-import BrowserApp from './apps/BrowserApp';
+import { FileText, Music, Award, MapPin, Braces, Mail, User, Calendar as CalendarIcon, Terminal, Battery, Wifi, Signal } from 'lucide-react';
+import CertiApp from './apps/CertiApp';
 import LocateApp from './apps/LocateApp';
 import SCCodeApp from './apps/SCCodeApp';
 import ContactApp from './apps/ContactApp';
@@ -35,7 +35,7 @@ const DesktopIcon = ({ title, icon: Icon, onClick, colorClass = "from-zinc-800 t
 const COMPONENT_MAP = {
     [APPS.RESUME.id]: ResumeApp,
     [APPS.MUSIC.id]: MusicPlayerApp,
-    [APPS.BROWSER.id]: BrowserApp,
+    [APPS.CERTI.id]: CertiApp,
     [APPS.LOCATE.id]: LocateApp,
     [APPS.SC_CODE.id]: SCCodeApp,
     [APPS.CONTACT.id]: ContactApp,
@@ -68,10 +68,10 @@ const Desktop = () => {
                     onClick={() => openApp(APPS.MUSIC.id, APPS.MUSIC.title)}
                 />
                 <DesktopIcon
-                    title={APPS.BROWSER.title}
-                    icon={Globe}
+                    title={APPS.CERTI.title}
+                    icon={Award}
                     colorClass="from-cyan-500/80 to-blue-800/90"
-                    onClick={() => openApp(APPS.BROWSER.id, APPS.BROWSER.title)}
+                    onClick={() => openApp(APPS.CERTI.id, APPS.CERTI.title)}
                 />
                 <DesktopIcon
                     title={APPS.LOCATE.title}

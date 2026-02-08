@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useOS } from '../../context/OSContext';
-import { Power, Monitor, Music, FileText, Globe, MapPin, Mail, User } from 'lucide-react';
+import { Power, Monitor, Music, FileText, Award, MapPin, Mail, User } from 'lucide-react';
 import { APPS } from '../../constants/apps';
 import SidebarClock from '../common/SidebarClock';
 import Calendar from '../common/Calendar';
@@ -8,7 +8,7 @@ import Calendar from '../common/Calendar';
 const AppIcon = ({ appId }) => {
     if (appId === APPS.RESUME.id) return <FileText size={20} />;
     if (appId === APPS.MUSIC.id) return <Music size={20} />;
-    if (appId === APPS.BROWSER.id) return <Globe size={20} />;
+    if (appId === APPS.CERTI.id) return <Award size={20} />;
     if (appId === APPS.LOCATE.id) return <MapPin size={20} />;
     if (appId === APPS.CONTACT.id) return <Mail size={20} />;
     if (appId === APPS.ABOUT_ME.id) return <User size={20} />;

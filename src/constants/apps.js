@@ -7,9 +7,9 @@ export const APPS = {
         id: 'music',
         title: 'Music Player',
     },
-    BROWSER: {
-        id: 'browser',
-        title: 'Browser',
+    CERTI: {
+        id: 'certi',
+        title: 'Certifications',
     },
     LOCATE: {
         id: 'locate',
@@ -36,3 +36,4 @@ export const APPS = {
         title: 'Terminal',
     },
 };
+
