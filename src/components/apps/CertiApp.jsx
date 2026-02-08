@@ -47,6 +47,19 @@ const CertiApp = () => {
         });
     };
 
+    // Preload images
+    const [imagesLoaded, setImagesLoaded] = useState({});
+
+    React.useEffect(() => {
+        certificates.forEach((cert) => {
+            const img = new Image();
+            img.src = cert.src;
+            img.onload = () => {
+                setImagesLoaded(prev => ({ ...prev, [cert.id]: true }));
+            };
+        });
+    }, [certificates]);
+
     return (
         <div className="w-full h-full bg-zinc-900 flex flex-col relative overflow-hidden">
             {/* Header */}
@@ -85,6 +98,13 @@ const CertiApp = () => {
                         }}
                         className="absolute inset-0 w-full h-full flex items-center justify-center"
                     >
+                        {/* Loading Indicator */}
+                        {!imagesLoaded[certificates[currentIndex].id] && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-zinc-900 z-20">
+                                <div className="w-8 h-8 border-2 border-white/20 border-t-blue-500 rounded-full animate-spin" />
+                            </div>
+                        )}
+
                         {/* 
                            Using img tag for simple rendering of JPGs.
                            object-contain ensures the full certificate is visible without cropping.
@@ -93,6 +113,7 @@ const CertiApp = () => {
                             src={certificates[currentIndex].src}
                             alt={`Certificate ${currentIndex + 1}`}
                             className="w-full h-full object-contain pointer-events-none"
+                            onLoad={() => setImagesLoaded(prev => ({ ...prev, [certificates[currentIndex].id]: true }))}
                         />
                     </motion.div>
                 </AnimatePresence>
