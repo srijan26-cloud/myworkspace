@@ -50,15 +50,15 @@ const CertiApp = () => {
     return (
         <div className="w-full h-full bg-zinc-900 flex flex-col relative overflow-hidden">
             {/* Header */}
-            <div className="h-16 bg-zinc-950/50 backdrop-blur-md border-b border-white/10 flex items-center px-6 justify-between z-10">
+            <div className="h-16 bg-zinc-950/90 backdrop-blur-md border-b border-white/10 flex items-center px-6 justify-between z-10 shrink-0">
                 <h2 className="text-xl font-light tracking-widest text-white uppercase">Certifications</h2>
                 <div className="text-xs text-zinc-500 font-mono">
                     {currentIndex + 1} / {certificates.length}
                 </div>
             </div>
 
-            {/* Gallery Container */}
-            <div className="flex-1 relative flex items-center justify-center p-8 overflow-hidden">
+            {/* Gallery Container - Full Screen */}
+            <div className="flex-1 relative overflow-hidden bg-black">
                 <AnimatePresence initial={false} custom={direction} mode="wait">
                     <motion.div
                         key={currentIndex}
@@ -83,42 +83,36 @@ const CertiApp = () => {
                                 paginate(-1);
                             }
                         }}
-                        className="absolute w-full max-w-5xl h-[80%] bg-black rounded-lg shadow-2xl overflow-hidden border border-white/10 flex items-center justify-center"
+                        className="absolute inset-0 w-full h-full flex items-center justify-center"
                     >
-                        <object
-                            data={certificates[currentIndex].src}
-                            type="application/pdf"
-                            className="w-full h-full rounded-lg"
-                        >
-                            <div className="w-full h-full flex flex-col items-center justify-center text-white bg-zinc-900">
-                                <p className="mb-4 text-zinc-400">Preview not available</p>
-                                <a
-                                    href={certificates[currentIndex].src}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="px-6 py-2 bg-blue-600 hover:bg-blue-500 rounded-full text-sm font-medium transition-colors"
-                                >
-                                    Open PDF
-                                </a>
-                            </div>
-                        </object>
-                        {/* Transparent overlay to capture drag events over the iframe */}
-                        <div className="absolute inset-0 bg-transparent" />
+                        {/* 
+                           Using iframe without extra params to avoid browser blocking.
+                           Removed extra styling/padding to ensure full visibility.
+                           Pointer events none on iframe to allow drag on overlay.
+                        */}
+                        <iframe
+                            src={certificates[currentIndex].src}
+                            className="w-full h-full border-none bg-white"
+                            title={`Certificate ${currentIndex + 1}`}
+                        />
+
+                        {/* Transparent overlay to capture drag events */}
+                        <div className="absolute inset-0 bg-transparent z-10" />
                     </motion.div>
                 </AnimatePresence>
 
-                {/* Navigation Buttons - placed outside the moving container to be always clickable */}
+                {/* Navigation Buttons */}
                 <button
-                    className="absolute left-4 z-20 p-3 rounded-full bg-black/50 hover:bg-white/10 text-white transition-colors border border-white/10 backdrop-blur-md"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-4 rounded-full bg-black/50 hover:bg-white/10 text-white transition-colors border border-white/10 backdrop-blur-md group"
                     onClick={() => paginate(-1)}
                 >
-                    <ChevronLeft size={24} />
+                    <ChevronLeft size={32} className="group-hover:-translate-x-1 transition-transform" />
                 </button>
                 <button
-                    className="absolute right-4 z-20 p-3 rounded-full bg-black/50 hover:bg-white/10 text-white transition-colors border border-white/10 backdrop-blur-md"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-4 rounded-full bg-black/50 hover:bg-white/10 text-white transition-colors border border-white/10 backdrop-blur-md group"
                     onClick={() => paginate(1)}
                 >
-                    <ChevronRight size={24} />
+                    <ChevronRight size={32} className="group-hover:translate-x-1 transition-transform" />
                 </button>
             </div>
         </div>
