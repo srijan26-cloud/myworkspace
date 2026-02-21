@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 const CertiApp = () => {
     // Generate certificate data for JPGs
-    const certificates = Array.from({ length: 9 }, (_, i) => ({
+    const certificates = Array.from({ length: 10 }, (_, i) => ({
         id: i + 1,
         src: `/certi_${i + 1}_page-0001.jpg`,
     }));
