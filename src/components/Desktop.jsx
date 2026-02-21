@@ -211,22 +211,29 @@ const Desktop = () => {
                                     <span className="text-[9px] text-white/60 font-medium text-center leading-tight">Home</span>
                                 </div>
 
-                                {Object.values(APPS).map((app) => (
-                                    <div key={app.id} className="flex flex-col items-center gap-1">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setIsEdgePanelOpen(false);
-                                                setTimeout(() => openApp(app.id, app.title), 300);
-                                            }}
-                                            className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-white/70 hover:bg-white/20 hover:text-white border border-white/5 transition-all transform hover:scale-105 shrink-0"
-                                            title={app.title}
-                                        >
-                                            {getAppIcon(app.id)}
-                                        </button>
-                                        <span className="text-[9px] text-white/50 font-medium text-center leading-tight max-w-[50px] truncate">{app.title}</span>
-                                    </div>
-                                ))}
+                                {Object.values(APPS).map((app) => {
+                                    const isAppActive = windows.some(win => win.appId === app.id);
+
+                                    return (
+                                        <div key={app.id} className="flex flex-col items-center gap-1 relative">
+                                            {isAppActive && (
+                                                <div className="absolute right-[2px] top-[2px] w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)] z-10" />
+                                            )}
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setIsEdgePanelOpen(false);
+                                                    setTimeout(() => openApp(app.id, app.title), 300);
+                                                }}
+                                                className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-white/70 hover:bg-white/20 hover:text-white border border-white/5 transition-all transform hover:scale-105 shrink-0 relative overflow-hidden"
+                                                title={app.title}
+                                            >
+                                                {getAppIcon(app.id)}
+                                            </button>
+                                            <span className="text-[9px] text-white/50 font-medium text-center leading-tight max-w-[50px] truncate">{app.title}</span>
+                                        </div>
+                                    );
+                                })}
                             </div>
                         </motion.div>
                     </>
