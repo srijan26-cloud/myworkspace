@@ -31,7 +31,7 @@ const Sidebar = () => {
 
     return (
         <>
-            <div className={`fixed bottom-0 left-0 w-full h-20 md:top-0 md:right-0 md:bottom-auto md:left-auto md:w-24 md:h-full bg-zinc-950/40 backdrop-blur-2xl border-t md:border-t-0 md:border-l border-white/10 flex flex-row md:flex-col items-center justify-between md:justify-start py-4 md:py-8 px-6 md:px-0 z-50 transition-transform duration-500 ease-in-out ${hasActiveWindow ? 'translate-y-full md:translate-y-0 opacity-0 md:opacity-100' : 'translate-y-0 opacity-100'}`}>
+            <div className={`hidden md:flex fixed bottom-0 left-0 w-full h-20 md:top-0 md:right-0 md:bottom-auto md:left-auto md:w-24 md:h-full bg-zinc-950/40 backdrop-blur-2xl border-t md:border-t-0 md:border-l border-white/10 flex-col items-center justify-start py-8 z-50 transition-transform duration-500 ease-in-out ${hasActiveWindow ? 'translate-y-full md:translate-y-0 opacity-0 md:opacity-100' : 'translate-y-0 opacity-100'}`}>
 
                 {/* Clock Section */}
                 <SidebarClock onClick={handleClockClick} />

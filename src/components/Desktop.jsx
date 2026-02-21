@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useOS } from '../context/OSContext';
 import Sidebar from './layout/Sidebar';
 import Window from './window/Window';
@@ -7,7 +7,7 @@ import ResumeApp from './apps/ResumeApp';
 import MusicPlayerApp from './apps/MusicPlayerApp';
 import CodingBackground from './common/CodingBackground';
 import { APPS } from '../constants/apps';
-import { FileText, Music, Award, MapPin, Braces, Mail, User, Calendar as CalendarIcon, Terminal, Battery, Wifi, Signal } from 'lucide-react';
+import { FileText, Music, Award, MapPin, Braces, Mail, User, Calendar as CalendarIcon, Terminal, Battery, Wifi, Signal, Home, Monitor } from 'lucide-react';
 import CertiApp from './apps/CertiApp';
 import LocateApp from './apps/LocateApp';
 import SCCodeApp from './apps/SCCodeApp';
@@ -46,7 +46,21 @@ const COMPONENT_MAP = {
 
 const Desktop = () => {
     // 1. Destructure windows from your OSContext
-    const { openApp, windows } = useOS();
+    const { openApp, windows, logout } = useOS();
+    const [isEdgePanelOpen, setIsEdgePanelOpen] = useState(false);
+
+    const getAppIcon = (appId) => {
+        if (appId === APPS.RESUME.id) return <FileText size={20} />;
+        if (appId === APPS.MUSIC.id) return <Music size={20} />;
+        if (appId === APPS.CERTI.id) return <Award size={20} />;
+        if (appId === APPS.LOCATE.id) return <MapPin size={20} />;
+        if (appId === APPS.CONTACT.id) return <Mail size={20} />;
+        if (appId === APPS.ABOUT_ME.id) return <User size={20} />;
+        if (appId === APPS.CALENDAR.id) return <CalendarIcon size={20} />;
+        if (appId === APPS.TERMINAL.id) return <Terminal size={20} />;
+        if (appId === APPS.SC_CODE.id) return <Braces size={20} />;
+        return <Monitor size={20} />;
+    };
 
     return (
         <div className="fixed inset-0 w-full h-full bg-black overflow-hidden font-sans">
@@ -126,6 +140,99 @@ const Desktop = () => {
             })}
 
             <Sidebar />
+
+            {/* Edge Panel for Mobile Desktop */}
+            {!isEdgePanelOpen && (
+                <motion.div
+                    className="md:hidden fixed top-0 right-0 w-8 h-full z-[90] touch-none cursor-pointer"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onPan={(event, info) => {
+                        if (info.offset.x < -20) {
+                            setIsEdgePanelOpen(true);
+                        }
+                    }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsEdgePanelOpen(true);
+                    }}
+                >
+                    <div className="absolute top-1/2 right-0 -translate-y-1/2 w-[5px] h-24 bg-white/20 hover:bg-white/40 transition-colors rounded-l-md shadow-[0_0_10px_rgba(255,255,255,0.2)]" />
+                </motion.div>
+            )}
+
+            <AnimatePresence>
+                {isEdgePanelOpen && (
+                    <>
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="md:hidden fixed inset-0 z-[95] bg-black/40 backdrop-blur-sm touch-none"
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setIsEdgePanelOpen(false);
+                            }}
+                        />
+                        {/* Panel */}
+                        <motion.div
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                            drag="x"
+                            dragConstraints={{ left: 0, right: 0 }}
+                            dragElastic={{ right: 0.5, left: 0 }}
+                            onDragEnd={(e, { offset, velocity }) => {
+                                if (offset.x > 30 || velocity.x > 300) {
+                                    setIsEdgePanelOpen(false);
+                                }
+                            }}
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onClick={(e) => e.stopPropagation()}
+                            className="md:hidden fixed top-0 right-0 h-full w-24 bg-zinc-950/80 backdrop-blur-2xl border-l border-white/10 z-[100] flex flex-col items-center py-6 overflow-y-auto"
+                        >
+                            <div className="w-1.5 h-10 bg-white/20 rounded-full mb-8 mt-4 hover:bg-white/30 transition-colors cursor-grab active:cursor-grabbing" />
+                            <div className="flex flex-col gap-6 px-2 w-full items-center pb-20">
+                                {/* Home app button */}
+                                <div className="flex flex-col items-center gap-1">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setIsEdgePanelOpen(false);
+                                            logout();
+                                        }}
+                                        className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-red-400 hover:bg-red-500/20 hover:text-red-300 border border-white/5 transition-all transform hover:scale-105 shrink-0"
+                                        title="Home (Log Out)"
+                                    >
+                                        <Home size={20} />
+                                    </button>
+                                    <span className="text-[9px] text-white/60 font-medium text-center leading-tight">Home</span>
+                                </div>
+
+                                {Object.values(APPS).map((app) => (
+                                    <div key={app.id} className="flex flex-col items-center gap-1">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setIsEdgePanelOpen(false);
+                                                setTimeout(() => openApp(app.id, app.title), 300);
+                                            }}
+                                            className="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-white/70 hover:bg-white/20 hover:text-white border border-white/5 transition-all transform hover:scale-105 shrink-0"
+                                            title={app.title}
+                                        >
+                                            {getAppIcon(app.id)}
+                                        </button>
+                                        <span className="text-[9px] text-white/50 font-medium text-center leading-tight max-w-[50px] truncate">{app.title}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
         </div>
     );
 };
